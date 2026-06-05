@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Background dark industrial -->
+  <rect width="400" height="400" fill="#072536"/>
+
+  <!-- Outer glow ring -->
+  <circle cx="200" cy="200" r="155" fill="none" stroke="#ff6a2b" stroke-width="4" opacity="0.3"/>
+
+  <!-- White circle background -->
+  <circle cx="200" cy="200" r="140" fill="white"/>
+
+  <!-- Red prohibition border -->
+  <circle cx="200" cy="200" r="140" fill="none" stroke="#e53e3e" stroke-width="28"/>
+
+  <!-- Cigarette body -->
+  <rect x="95" y="185" width="140" height="22" rx="4" fill="#8B6914"/>
+  <!-- Cigarette white filter end -->
+  <rect x="215" y="183" width="50" height="26" rx="4" fill="#f5f0e8"/>
+  <!-- Filter line -->
+  <rect x="213" y="183" width="4" height="26" fill="#e0c88a"/>
+
+  <!-- Smoke wisps -->
+  <path d="M240 175 Q245 160 238 148 Q231 136 237 122" stroke="#999" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M255 172 Q262 155 255 142 Q248 129 255 115" stroke="#bbb" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Red diagonal prohibition line -->
+  <line x1="90" y1="290" x2="310" y2="110" stroke="#e53e3e" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- Top label -->
+  <text x="200" y="48" font-family="Arial, sans-serif" font-size="13" fill="#7fd1e8" text-anchor="middle" letter-spacing="1">NR-29 · ÁREA PORTUÁRIA</text>
+</svg>
