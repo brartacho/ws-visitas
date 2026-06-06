@@ -1085,19 +1085,55 @@ function AdminMetrics({ requests, slots, questions, navigate }: SharedProps) {
       href: "/admin/duvidas",
     },
   ];
+  const recentRequests = [...requests]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 5);
+
   return (
-    <section className="metrics-grid" aria-label="Ações rápidas do painel administrativo">
-      {metrics.map((metric) => (
-        <MetricCard
-          key={metric.label}
-          icon={metric.icon}
-          label={metric.label}
-          value={String(metric.value)}
-          action={metric.action}
-          onClick={() => navigate(metric.href)}
-        />
-      ))}
-    </section>
+    <>
+      <section className="metrics-grid" aria-label="Ações rápidas do painel administrativo">
+        {metrics.map((metric) => (
+          <MetricCard
+            key={metric.label}
+            icon={metric.icon}
+            label={metric.label}
+            value={String(metric.value)}
+            action={metric.action}
+            onClick={() => navigate(metric.href)}
+          />
+        ))}
+      </section>
+
+      {recentRequests.length > 0 && (
+        <section className="activity-feed" aria-labelledby="activity-title">
+          <h2 id="activity-title">Atividade recente</h2>
+          <ul className="activity-list">
+            {recentRequests.map((request) => (
+              <li key={request.id} className="activity-item">
+                <span className={`activity-dot status-${statusTone(request.status)}`} aria-hidden="true" />
+                <div className="activity-info">
+                  <a
+                    href={`/admin/solicitacoes/${request.id}`}
+                    className="activity-id"
+                    onClick={(event) => { event.preventDefault(); navigate(`/admin/solicitacoes/${request.id}`); }}
+                  >
+                    {request.id}
+                  </a>
+                  <span className="activity-name">{request.visitorName}</span>
+                </div>
+                <StatusBadge status={request.status} />
+                <time className="activity-time" dateTime={request.createdAt}>
+                  {formatTimestamp(request.createdAt)}
+                </time>
+              </li>
+            ))}
+          </ul>
+          <button className="small-button activity-see-all" type="button" onClick={() => navigate("/admin/solicitacoes")}>
+            Ver todas as solicitações
+          </button>
+        </section>
+      )}
+    </>
   );
 }
 
