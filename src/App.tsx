@@ -6,6 +6,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
+  ClipboardList,
+  Clock,
   HelpCircle,
   Home,
   Lock,
@@ -971,7 +973,7 @@ function AdminPage(props: SharedProps) {
           {currentRequest ? (
             <>
               <RequestSummary request={currentRequest} />
-              <ReviewList items={[["Quiz", `${currentRequest.quizScore} de 5`], ["Último e-mail", currentRequest.lastEmailAt ? formatDateTime(currentRequest.lastEmailAt) : "Sem envio"], ["Observações", currentRequest.notes ?? "Sem observações"]]} />
+              <ReviewList items={[["Quiz", `${currentRequest.quizScore} de 5`], ["Último e-mail", currentRequest.lastEmailAt ? formatTimestamp(currentRequest.lastEmailAt) : "Sem envio"], ["Observações", currentRequest.notes ?? "Sem observações"]]} />
               <div className="button-row">
                 <button className="primary-button" type="button" disabled={pendingRequestId === currentRequest.id} onClick={() => setRequestStatus(currentRequest, "Aprovada", props.updateRequest, props.setSlots, setPendingRequestId)}>
                   {pendingRequestId === currentRequest.id ? "Processando..." : "Aprovar solicitação"}
@@ -1075,14 +1077,14 @@ function AdminMetrics({ requests, slots, questions, navigate }: SharedProps) {
       label: "Pendentes",
       value: pendingRequests,
       action: "Analisar solicitações",
-      icon: <ClipboardCheck />,
+      icon: <Clock />,
       href: "/admin/solicitacoes?status=pendentes",
     },
     {
       label: "Solicitações",
       value: requests.length,
       action: "Ver todas",
-      icon: <ClipboardCheck />,
+      icon: <ClipboardList />,
       href: "/admin/solicitacoes",
     },
     {
@@ -1784,6 +1786,15 @@ function RequestsTable(props: SharedProps & {
   setPendingRequestId: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const filter = props.route.query.get("status") ?? "todas";
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
+
+  function handleAction(request: VisitRequest, status: VisitStatus) {
+    setPendingAction(status);
+    setRequestStatus(request, status, props.updateRequest, props.setSlots, (value) => {
+      props.setPendingRequestId(value as string | null);
+      if (value === null) setPendingAction(null);
+    });
+  }
   const filteredRequests = props.requests.filter((request) => {
     if (filter === "pendentes") return request.status.includes("Pendente") || request.status === "Recebida";
     if (filter === "aprovadas") return request.status === "Aprovada";
@@ -1807,7 +1818,7 @@ function RequestsTable(props: SharedProps & {
           <tbody>{filteredRequests.map((request) => {
             const busy = props.pendingRequestId === request.id;
             const slot = props.slots.find((item) => item.id === request.slotId);
-            return <tr key={request.id}><td><a href={`/admin/solicitacoes/${request.id}`} onClick={(event) => { event.preventDefault(); props.navigate(`/admin/solicitacoes/${request.id}`); }}>{request.id}</a></td><td>{request.visitorName}</td><td>{slot ? formatDateTime(slot.date, slot.time) : "Não informado"}</td><td>{formatRequestMode(request)}</td><td>{request.unit}</td><td><StatusBadge status={request.status} /></td><td>{request.emailVisitorSent ? "Visitante" : "Pendente"} / {request.emailHostSent ? "Host" : "Pendente"}</td><td className="action-cell"><button className="icon-action-button success-action" type="button" title={busy ? "Processando..." : "Aprovar solicitação"} aria-label={busy ? "Processando aprovação" : "Aprovar solicitação"} disabled={busy} onClick={() => setRequestStatus(request, "Aprovada", props.updateRequest, props.setSlots, props.setPendingRequestId)}>{busy ? <span className="inline-spinner" aria-hidden="true" /> : <Check aria-hidden="true" />}</button><button className="icon-action-button danger-action" type="button" title={busy ? "Processando..." : "Reprovar solicitação"} aria-label={busy ? "Processando reprovação" : "Reprovar solicitação"} disabled={busy} onClick={() => setRequestStatus(request, "Reprovada", props.updateRequest, props.setSlots, props.setPendingRequestId)}>{busy ? <span className="inline-spinner" aria-hidden="true" /> : <Ban aria-hidden="true" />}</button><button className="icon-action-button" type="button" title={busy ? "Processando..." : "Cancelar solicitação"} aria-label={busy ? "Processando cancelamento" : "Cancelar solicitação"} disabled={busy} onClick={() => setRequestStatus(request, "Cancelada", props.updateRequest, props.setSlots, props.setPendingRequestId)}>{busy ? <span className="inline-spinner" aria-hidden="true" /> : <X aria-hidden="true" />}</button><a className="icon-action-button whatsapp-action" href={whatsappUrl(request.visitorPhone, `Olá, ${request.visitorName}. Aqui é a equipe responsável pelo agendamento de visitas. Precisamos tratar alguns detalhes da sua solicitação ${request.id}.`)} title="Abrir WhatsApp" aria-label="Abrir WhatsApp" target="_blank" rel="noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a></td></tr>;
+            return <tr key={request.id}><td><a href={`/admin/solicitacoes/${request.id}`} onClick={(event) => { event.preventDefault(); props.navigate(`/admin/solicitacoes/${request.id}`); }}>{request.id}</a></td><td>{request.visitorName}</td><td>{slot ? formatDateTime(slot.date, slot.time) : "Não informado"}</td><td>{formatRequestMode(request)}</td><td>{request.unit}</td><td><StatusBadge status={request.status} /></td><td>{request.emailVisitorSent ? "Visitante" : "Pendente"} / {request.emailHostSent ? "Host" : "Pendente"}</td><td className="action-cell"><button className="icon-action-button success-action" type="button" title={busy ? "Processando..." : "Aprovar solicitação"} aria-label="Aprovar solicitação" disabled={busy} onClick={() => handleAction(request, "Aprovada")}>{busy && pendingAction === "Aprovada" ? <span className="inline-spinner" aria-hidden="true" /> : <Check aria-hidden="true" />}</button><button className="icon-action-button danger-action" type="button" title={busy ? "Processando..." : "Reprovar solicitação"} aria-label="Reprovar solicitação" disabled={busy} onClick={() => handleAction(request, "Reprovada")}>{busy && pendingAction === "Reprovada" ? <span className="inline-spinner" aria-hidden="true" /> : <Ban aria-hidden="true" />}</button><button className="icon-action-button" type="button" title={busy ? "Processando..." : "Cancelar solicitação"} aria-label="Cancelar solicitação" disabled={busy} onClick={() => handleAction(request, "Cancelada")}>{busy && pendingAction === "Cancelada" ? <span className="inline-spinner" aria-hidden="true" /> : <X aria-hidden="true" />}</button><a className="icon-action-button whatsapp-action" href={whatsappUrl(request.visitorPhone, `Olá, ${request.visitorName}. Aqui é a equipe responsável pelo agendamento de visitas. Precisamos tratar alguns detalhes da sua solicitação ${request.id}.`)} title="Abrir WhatsApp" aria-label="Abrir WhatsApp" target="_blank" rel="noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a></td></tr>;
           })}</tbody>
         </table>
       </div>
@@ -2126,8 +2137,8 @@ function MetricCard({
   );
 }
 
-function PageHeading({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
-  return <header className="page-heading"><span aria-hidden="true">{icon}</span><div><h1>{title}</h1><p>{text}</p></div></header>;
+function PageHeading({ title, text }: { icon?: ReactNode; title: string; text: string }) {
+  return <header className="page-heading"><h1>{title}</h1><p>{text}</p></header>;
 }
 
 function InfoList({ title, items }: { title: string; items: string[] }) {
