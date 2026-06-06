@@ -25,6 +25,7 @@ import logoImage from "../images/logo-wilson-sons/logo.png";
 import heroImage from "../images/images-wilson-sons/wilson-sons-003.jpg";
 import maritimeCrewImage from "../images/images-wilson-sons/funcionarios-wilsoin-sons.webp";
 import videoContextImage from "../images/images-wilson-sons/wilson-sons-001.jpg";
+import portYardImage from "../images/images-wilson-sons/wilson-sons-004.jpg";
 import {
   adminNavItem,
   initialHosts,
@@ -383,6 +384,82 @@ function HomePage({ navigate }: SharedProps) {
             <img src={heroImage} alt="Vista aérea de um terminal portuário com pátio de contêineres e guindastes" />
           </figure>
           <p className="hero-media-caption">Terminal Wilson Sons em operação.</p>
+        </div>
+      </section>
+
+      <section className="section-how" aria-labelledby="how-title">
+        <div className="section-how-inner">
+          <p className="section-how-label">Processo</p>
+          <h2 id="how-title">Como funciona o agendamento</h2>
+          <div className="how-steps">
+            <article className="how-step">
+              <img src={videoContextImage} alt="Vista aérea de navio e operações portuárias Wilson Sons" className="how-step-img" />
+              <div className="how-step-num" aria-hidden="true">1</div>
+              <h3 className="how-step-title">Solicite e realize o quiz</h3>
+              <p className="how-step-desc">Escolha data e horário disponíveis, preencha seus dados e conclua o quiz de segurança obrigatório antes do envio.</p>
+            </article>
+            <article className="how-step">
+              <img src={portYardImage} alt="Vista aérea de pátio de contêineres com guindastes azuis" className="how-step-img" />
+              <div className="how-step-num" aria-hidden="true">2</div>
+              <h3 className="how-step-title">Aguarde a aprovação</h3>
+              <p className="how-step-desc">Nossa equipe analisa sua solicitação. Você receberá notificação por e-mail com o resultado e o QR Code de acesso.</p>
+            </article>
+            <article className="how-step">
+              <img src={maritimeCrewImage} alt="Funcionários Wilson Sons com capacetes e EPIs em embarcação" className="how-step-img" />
+              <div className="how-step-num" aria-hidden="true">3</div>
+              <h3 className="how-step-title">Compareça com segurança</h3>
+              <p className="how-step-desc">Apresente o QR Code na portaria com documento de identificação e use os EPIs exigidos durante toda a visita.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section-quick" aria-labelledby="quick-title">
+        <div className="section-how-inner">
+          <p className="section-how-label">Atalhos</p>
+          <h2 id="quick-title">Acesso rápido</h2>
+          <div className="quick-grid">
+            <button className="quick-card quick-card-primary" type="button" onClick={() => navigate("/solicitar-visita")}>
+              <div className="quick-card-icon">
+                <CalendarDays aria-hidden="true" />
+              </div>
+              <div className="quick-card-body">
+                <strong className="quick-card-title">Solicitar visita</strong>
+                <p className="quick-card-desc">Escolha data, horário e preencha o formulário de agendamento</p>
+              </div>
+              <ChevronRight className="quick-card-arrow" aria-hidden="true" />
+            </button>
+            <button className="quick-card" type="button" onClick={() => navigate("/consultar")}>
+              <div className="quick-card-icon">
+                <Search aria-hidden="true" />
+              </div>
+              <div className="quick-card-body">
+                <strong className="quick-card-title">Consultar status</strong>
+                <p className="quick-card-desc">Verifique o andamento da sua solicitação pelo ID e e-mail</p>
+              </div>
+              <ChevronRight className="quick-card-arrow" aria-hidden="true" />
+            </button>
+            <button className="quick-card" type="button" onClick={() => navigate("/seguranca")}>
+              <div className="quick-card-icon">
+                <ShieldCheck aria-hidden="true" />
+              </div>
+              <div className="quick-card-body">
+                <strong className="quick-card-title">Normas de segurança</strong>
+                <p className="quick-card-desc">EPIs obrigatórios, conduta e regras para acesso às instalações</p>
+              </div>
+              <ChevronRight className="quick-card-arrow" aria-hidden="true" />
+            </button>
+            <button className="quick-card" type="button" onClick={() => navigate("/duvidas")}>
+              <div className="quick-card-icon">
+                <HelpCircle aria-hidden="true" />
+              </div>
+              <div className="quick-card-body">
+                <strong className="quick-card-title">Dúvidas</strong>
+                <p className="quick-card-desc">Envie sua pergunta antes ou depois de solicitar o agendamento</p>
+              </div>
+              <ChevronRight className="quick-card-arrow" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </section>
     </div>
