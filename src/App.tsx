@@ -965,13 +965,26 @@ function AdminPage(props: SharedProps) {
       {path === "/admin/solicitacoes" && <RequestsTable {...props} pendingRequestId={pendingRequestId} setPendingRequestId={setPendingRequestId} />}
       {path.startsWith("/admin/solicitacoes/") && (
         <section className="result-panel">
+          <button className="secondary-button compact-button" type="button" style={{ marginBottom: "16px" }} onClick={() => props.navigate("/admin/solicitacoes")}>
+            <ChevronLeft aria-hidden="true" /> Voltar para solicitações
+          </button>
           {currentRequest ? (
             <>
               <RequestSummary request={currentRequest} />
               <ReviewList items={[["Quiz", `${currentRequest.quizScore} de 5`], ["Último e-mail", currentRequest.lastEmailAt ? formatDateTime(currentRequest.lastEmailAt) : "Sem envio"], ["Observações", currentRequest.notes ?? "Sem observações"]]} />
-              <div className="button-row"><button className="primary-button" type="button" disabled={pendingRequestId === currentRequest.id} onClick={() => setRequestStatus(currentRequest, "Aprovada", props.updateRequest, props.setSlots, setPendingRequestId)}>{pendingRequestId === currentRequest.id ? "Processando..." : "Aprovar e gerar QR"}</button><button className="secondary-button" type="button" disabled={pendingRequestId === currentRequest.id} onClick={() => setRequestStatus(currentRequest, "Remarcada", props.updateRequest, props.setSlots, setPendingRequestId)}>{pendingRequestId === currentRequest.id ? "Aguarde..." : "Marcar como remarcada"}</button></div>
+              <div className="button-row">
+                <button className="primary-button" type="button" disabled={pendingRequestId === currentRequest.id} onClick={() => setRequestStatus(currentRequest, "Aprovada", props.updateRequest, props.setSlots, setPendingRequestId)}>
+                  {pendingRequestId === currentRequest.id ? "Processando..." : "Aprovar solicitação"}
+                </button>
+                <button className="secondary-button" type="button" disabled={pendingRequestId === currentRequest.id} onClick={() => setRequestStatus(currentRequest, "Remarcada", props.updateRequest, props.setSlots, setPendingRequestId)}>
+                  {pendingRequestId === currentRequest.id ? "Aguarde..." : "Marcar como remarcada"}
+                </button>
+                <button className="secondary-button" type="button" disabled={pendingRequestId === currentRequest.id} onClick={() => setRequestStatus(currentRequest, "Reprovada", props.updateRequest, props.setSlots, setPendingRequestId)}>
+                  {pendingRequestId === currentRequest.id ? "Aguarde..." : "Reprovar"}
+                </button>
+              </div>
             </>
-          ) : <p>Não encontramos a solicitação informada.</p>}
+          ) : <p>Não encontramos a solicitação informada. <button type="button" className="small-button" onClick={() => props.navigate("/admin/solicitacoes")}>Ver lista</button></p>}
         </section>
       )}
     </div>
@@ -2134,16 +2147,17 @@ function RequestSummary({ request }: { request: VisitRequest }) {
     <>
       <div className="summary-header"><h2>{request.id}</h2><StatusBadge status={request.status} /></div>
       <ReviewList items={[["Responsável", request.visitorName], ["Unidade", request.unit], ["Área", request.area], ["Modalidade", request.mode], ["Quantidade", String(request.visitorsCount)], ["E-mail ao visitante", request.emailVisitorSent ? "Sim" : "Não"]]} />
-      {request.status === "Aprovada" && request.qrToken && <div className="qr-area"><PseudoQr value={checkinLink(request)} /><p>{checkinLink(request)}</p></div>}
+      {request.status === "Aprovada" && request.qrToken && (
+        <div className="checkin-access-box">
+          <p className="checkin-access-label">Acesso aprovado — dados para check-in na portaria</p>
+          <dl className="checkin-access-fields">
+            <div><dt>ID da solicitação</dt><dd><code>{request.id}</code></dd></div>
+            <div><dt>Token de acesso</dt><dd><code>{request.qrToken}</code></dd></div>
+          </dl>
+          <a className="small-link" href={checkinLink(request)} target="_blank" rel="noreferrer">Abrir link de check-in</a>
+        </div>
+      )}
     </>
   );
 }
 
-function PseudoQr({ value }: { value: string }) {
-  const cells = useMemo(() => {
-    let seed = 0;
-    for (const char of value) seed += char.charCodeAt(0);
-    return Array.from({ length: 121 }, (_, index) => ((index * 17 + seed) % 5) < 2);
-  }, [value]);
-  return <svg className="qr-code" viewBox="0 0 110 110" role="img" aria-label="QR Code para conferência da visita"><rect width="110" height="110" fill="#ffffff" />{cells.map((active, index) => active && <rect key={index} x={(index % 11) * 10} y={Math.floor(index / 11) * 10} width="8" height="8" fill="#03243f" />)}</svg>;
-}

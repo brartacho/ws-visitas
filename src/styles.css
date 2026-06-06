@@ -2281,3 +2281,55 @@ td a {
 .slot-edit-capacity {
   max-width: 72px;
 }
+
+/* ── Check-in access box (approved requests) ── */
+.checkin-access-box {
+  margin-top: 16px;
+  background: var(--success-bg, #def6eb);
+  border: 1px solid rgba(21, 114, 77, 0.25);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+
+.checkin-access-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--success, #15724d);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.checkin-access-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.checkin-access-fields div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkin-access-fields dt {
+  font-size: 12px;
+  color: var(--muted, #607282);
+  min-width: 120px;
+}
+
+.checkin-access-fields dd {
+  margin: 0;
+}
+
+.checkin-access-fields code {
+  background: #fff;
+  border: 1px solid rgba(21, 114, 77, 0.2);
+  border-radius: 5px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy, #03243f);
+  letter-spacing: 0.5px;
+}
