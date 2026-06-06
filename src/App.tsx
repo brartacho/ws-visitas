@@ -864,8 +864,8 @@ function CheckinPage({ route, requests, updateRequest }: SharedProps) {
     <div className="page narrow-page">
       <PageHeading icon={<QrCode />} title="Check-in portaria" text="Conferência por ID e token. Apresente também um documento de identificação." />
       <div className="form-card form-grid">
-        <label>RequestID<input value={requestId} onChange={(event) => setRequestId(event.target.value)} /></label>
-        <label>Token<input value={token} onChange={(event) => setToken(event.target.value)} /></label>
+        <label>ID da solicitação<input value={requestId} onChange={(event) => setRequestId(event.target.value)} /></label>
+        <label>Token de acesso<input value={token} onChange={(event) => setToken(event.target.value)} /></label>
       </div>
       <section className="result-panel">
         {request ? (
@@ -874,7 +874,7 @@ function CheckinPage({ route, requests, updateRequest }: SharedProps) {
             <p className="legal-note">O QR Code não substitui a validação presencial, apresentação de documento e orientação da equipe responsável.</p>
             <div className="button-row"><button className="primary-button" type="button" disabled={isProcessing} onClick={() => register("in")}>{isProcessing ? "Registrando..." : "Registrar check-in"}</button><button className="secondary-button" type="button" disabled={isProcessing} onClick={() => register("out")}>{isProcessing ? "Aguarde..." : "Registrar check-out"}</button></div>
           </>
-        ) : <p>Informe um RequestID para iniciar a conferência.</p>}
+        ) : <p>Informe o ID da solicitação para iniciar a conferência.</p>}
         <p className="form-message" aria-live="polite">{message}</p>
       </section>
     </div>
