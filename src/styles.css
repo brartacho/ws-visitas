@@ -2262,3 +2262,22 @@ td a {
     padding: 40px 0;
   }
 }
+
+/* ── Admin Agenda: edição inline de slot ── */
+.slot-editing-row {
+  background: #f0f8ff;
+}
+
+.slot-edit-input {
+  border: 1px solid #b8d0e0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  width: 100%;
+  max-width: 200px;
+  background: #fff;
+}
+
+.slot-edit-capacity {
+  max-width: 72px;
+}

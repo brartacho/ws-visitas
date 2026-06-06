@@ -11,11 +11,13 @@ import {
   Lock,
   LockOpen,
   Menu,
+  Pencil,
   Plus,
   QrCode,
   Repeat,
   Search,
   ShieldCheck,
+  Trash2,
   Youtube,
   X,
 } from "lucide-react";
@@ -1179,6 +1181,11 @@ function AdminAgenda({ slots, setSlots, hosts }: SharedProps) {
   const [isCreatingSlot, setIsCreatingSlot] = useState(false);
   const [isGeneratingSlots, setIsGeneratingSlots] = useState(false);
   const [busySlotId, setBusySlotId] = useState<string | null>(null);
+  const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<{ capacityTotal: number; unit: string }>({
+    capacityTotal: 20,
+    unit: "",
+  });
   const [feedback, setFeedback] = useState("");
   const calendarDays = useMemo(() => buildCalendarMonth(planForm.calendarMonth), [planForm.calendarMonth]);
   const selectedDateSet = useMemo(() => new Set(planForm.selectedDates), [planForm.selectedDates]);
@@ -1316,6 +1323,57 @@ function AdminAgenda({ slots, setSlots, hosts }: SharedProps) {
       setBusySlotId(null);
     }
     setSlots((current) => current.map((slot) => (slot.id === id ? { ...slot, status } : slot)));
+  }
+
+  function startEdit(slot: AvailabilitySlot) {
+    setEditingSlotId(slot.id);
+    setEditForm({ capacityTotal: slot.capacityTotal, unit: slot.unit });
+  }
+
+  function cancelEdit() {
+    setEditingSlotId(null);
+  }
+
+  async function saveEdit(slot: AvailabilitySlot) {
+    if (busySlotId) return;
+    try {
+      setBusySlotId(slot.id);
+      const response = await appsScriptApi.updateAvailabilitySlot(slot.id, {
+        capacityTotal: editForm.capacityTotal,
+        unit: editForm.unit,
+        CapacityTotal: editForm.capacityTotal,
+        Unit: editForm.unit,
+      });
+      const remoteSlot = toAvailabilitySlot(readApiData(response));
+      if (remoteSlot) {
+        mergeLocalSlots([remoteSlot]);
+      } else {
+        setSlots((current) =>
+          current.map((s) => s.id === slot.id ? { ...s, ...editForm } : s)
+        );
+      }
+      setEditingSlotId(null);
+    } catch {
+      setSlots((current) =>
+        current.map((s) => s.id === slot.id ? { ...s, ...editForm } : s)
+      );
+      setEditingSlotId(null);
+    } finally {
+      setBusySlotId(null);
+    }
+  }
+
+  async function deleteSlot(id: string) {
+    if (busySlotId) return;
+    try {
+      setBusySlotId(id);
+      await appsScriptApi.deleteAvailabilitySlot(id);
+    } catch {
+      // remove locally regardless
+    } finally {
+      setBusySlotId(null);
+    }
+    setSlots((current) => current.filter((s) => s.id !== id));
   }
 
   return (
@@ -1552,18 +1610,65 @@ function AdminAgenda({ slots, setSlots, hosts }: SharedProps) {
           <tbody>
             {slots.map((slot) => {
               const busy = busySlotId === slot.id;
+              const editing = editingSlotId === slot.id;
+
+              if (editing) {
+                return (
+                  <tr key={slot.id} className="slot-editing-row">
+                    <td>{slot.id}</td>
+                    <td>{formatDateTime(slot.date, slot.time)}</td>
+                    <td>
+                      <select
+                        className="slot-edit-input"
+                        value={editForm.unit}
+                        onChange={(e) => setEditForm((f) => ({ ...f, unit: e.target.value }))}
+                      >
+                        {unitOptions.map((u) => <option key={u} value={u}>{u}</option>)}
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        className="slot-edit-input slot-edit-capacity"
+                        min={1}
+                        value={editForm.capacityTotal}
+                        onChange={(e) => setEditForm((f) => ({ ...f, capacityTotal: Number(e.target.value) }))}
+                      />
+                    </td>
+                    <td><StatusBadge status={slot.status} /></td>
+                    <td className="action-cell">
+                      <button
+                        className="icon-action-button success-action"
+                        type="button"
+                        title="Salvar alterações"
+                        aria-label="Salvar alterações"
+                        disabled={busy}
+                        onClick={() => saveEdit(slot)}
+                      >
+                        {busy ? <span className="inline-spinner" aria-hidden="true" /> : <Check aria-hidden="true" />}
+                      </button>
+                      <button
+                        className="icon-action-button"
+                        type="button"
+                        title="Cancelar edição"
+                        aria-label="Cancelar edição"
+                        onClick={cancelEdit}
+                      >
+                        <X aria-hidden="true" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              }
+
               return (
                 <tr key={slot.id}>
                   <td>{slot.id}</td>
                   <td>{formatDateTime(slot.date, slot.time)}</td>
                   <td>{slot.unit}</td>
-                  <td>
-                    {capacityAvailable(slot)} de {slot.capacityTotal}
-                  </td>
-                  <td>
-                    <StatusBadge status={slot.status} />
-                  </td>
-                  <td>
+                  <td>{capacityAvailable(slot)} de {slot.capacityTotal}</td>
+                  <td><StatusBadge status={slot.status} /></td>
+                  <td className="action-cell">
                     <button
                       className="icon-action-button"
                       type="button"
@@ -1573,6 +1678,26 @@ function AdminAgenda({ slots, setSlots, hosts }: SharedProps) {
                       onClick={() => setStatus(slot.id, slot.status === "Bloqueado" ? "Disponível" : "Bloqueado")}
                     >
                       {busy ? <span className="inline-spinner" aria-hidden="true" /> : slot.status === "Bloqueado" ? <LockOpen aria-hidden="true" /> : <Lock aria-hidden="true" />}
+                    </button>
+                    <button
+                      className="icon-action-button"
+                      type="button"
+                      disabled={busy}
+                      title="Editar slot"
+                      aria-label="Editar slot"
+                      onClick={() => startEdit(slot)}
+                    >
+                      <Pencil aria-hidden="true" />
+                    </button>
+                    <button
+                      className="icon-action-button danger-action"
+                      type="button"
+                      disabled={busy}
+                      title="Excluir slot"
+                      aria-label="Excluir slot"
+                      onClick={() => deleteSlot(slot.id)}
+                    >
+                      {busy ? <span className="inline-spinner" aria-hidden="true" /> : <Trash2 aria-hidden="true" />}
                     </button>
                   </td>
                 </tr>
