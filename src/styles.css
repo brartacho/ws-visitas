@@ -101,7 +101,6 @@ summary:focus-visible {
 }
 
 .header-inner,
-.footer-inner,
 .page {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -1757,21 +1756,92 @@ td a {
 .site-footer {
   background: var(--navy);
   color: #fff;
-  padding: 18px 0;
+  padding: 0;
   border-top: 4px solid #0b6f8e;
 }
 
 .footer-inner {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
   display: flex;
   gap: 16px;
   align-items: center;
   justify-content: space-between;
 }
 
-.footer-inner span {
-  color: #d7e6ec;
-  font-size: 0.9rem;
-  text-align: right;
+.footer-top {
+  padding: 28px 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-bottom {
+  padding: 16px 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.footer-logo {
+  height: 36px;
+  width: auto;
+  filter: brightness(0) invert(1);
+}
+
+.footer-brand strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.footer-tagline {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer-link:hover {
+  color: #fff;
+}
+
+.footer-copy {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.footer-kodie-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #e07b28;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.2px;
 }
 
 .sr-only {
@@ -1852,7 +1922,6 @@ td a {
 
 @media (max-width: 720px) {
   .header-inner,
-  .footer-inner,
   .page,
   .narrow-page,
   .admin-page {
@@ -1867,7 +1936,6 @@ td a {
   .metrics-grid,
   .form-grid,
   .review-list,
-  .footer-inner,
   .stepper {
     grid-template-columns: 1fr;
   }
@@ -1948,13 +2016,16 @@ td a {
     flex-direction: column;
   }
 
-  .footer-inner {
+  .footer-top {
+    flex-direction: column;
     align-items: flex-start;
-    display: grid;
-    gap: 6px;
   }
 
-  .footer-inner span {
-    text-align: left;
+  .footer-links {
+    gap: 14px;
+  }
+
+  .footer-kodie-badge {
+    font-size: 10px;
   }
 }
